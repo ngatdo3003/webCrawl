@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
+
 @Service
 public class CrawlJob {
 
@@ -23,10 +25,12 @@ public class CrawlJob {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @Scheduled(fixedDelay = 3000000L)//3000 seconds
+    @Scheduled(fixedDelay = 3600000L)//3600 seconds = 1 hour
     private void crawl(){
+        logger.info("crawl from vnexpress start at: " + (new Timestamp(System.currentTimeMillis())).toString());
         ResponseEntity<String> response = restTemplate.getForEntity(url , String.class);
         if(response.getStatusCode() == HttpStatus.OK){
+            logger.info("crawl successfully !!");
             String data = response.getBody();
 
             int pos = 0;
@@ -39,10 +43,9 @@ public class CrawlJob {
                     rabbitTemplate.convertAndSend(WebCrawlApplication.QUEUE_NAME, s);
                 pos = pos2;
             }
-
         }
         else {
-            System.out.println("crawl error at " + System.currentTimeMillis());
+            System.out.println("crawl error !!");
         }
 
     }

@@ -28,16 +28,13 @@ public class WebCrawlListener {
     @RabbitListener(id = "WebCrawl_LS",queues = WebCrawlApplication.QUEUE_NAME)
     public void listen(String data) {
         try {
-
             logger.info("Listener received : " + data);
             List<Topic> list = null;
                 try {
                     list = Arrays.asList(objectMapper.readValue(data, Topic[].class));
-                    if(list.size()>0)
-                    {
+                    if(list.size()>0) {
                         topicRepository.saveAll(list);
                     }
-
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
